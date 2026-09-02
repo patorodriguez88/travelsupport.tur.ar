@@ -1,0 +1,27 @@
+name: Deploy TravelSupport Web · producción
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: FTP sync a /travelsupport.tur.ar/
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: dintersa.com.ar
+          username: user@travelsupport.tur.ar
+          password: ${{ secrets.FTP_SECRET }}
+          # exclude REEMPLAZA el default de la action, así que se repiten los de git/node
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.github/**
+            **/*.md
+            **/.DS_Store

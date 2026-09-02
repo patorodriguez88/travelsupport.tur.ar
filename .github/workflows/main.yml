@@ -17,6 +17,7 @@ jobs:
           server: dintersa.com.ar
           username: user@travelsupport.tur.ar
           password: ${{ secrets.FTP_SECRET }}
+          dry-run: true
           # exclude REEMPLAZA el default de la action, así que se repiten los de git/node
           exclude: |
             **/.git*

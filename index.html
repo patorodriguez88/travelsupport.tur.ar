@@ -1,38 +1,922 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TravelSupport</title>
+  <meta name="description" content="TravelSupport organiza tu viaje y te acompaña antes, durante y después.">
+  <title>TravelSupport | Viajá con respaldo</title>
   <style>
     :root {
-      --bg: #0e1a2b;
-      --fg: #f5f7fa;
-      --accent: #3ba9d4;
+      --navy: #10243e;
+      --navy-deep: #0a192d;
+      --teal: #19a7a0;
+      --teal-dark: #087f7c;
+      --coral: #f2826b;
+      --sun: #f6c85f;
+      --sand: #fff3d8;
+      --cream: #f7f5ef;
+      --white: #fff;
+      --ink: #17304c;
+      --muted: #64748b;
+      --line: #dce6e8;
+      --shadow: 0 18px 50px rgba(16, 36, 62, .12);
+      --radius: 20px;
     }
+
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      text-align: center;
-      padding: 2rem;
+      color: var(--ink);
+      background: var(--cream);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
     }
-    main { max-width: 32rem; }
-    h1 { font-size: 2.5rem; margin: 0 0 .5rem; }
-    p { font-size: 1.1rem; line-height: 1.6; opacity: .85; }
-    .accent { color: var(--accent); }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+    .container { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+
+    .topbar {
+      background: linear-gradient(90deg, #ffd978, #f6a66f);
+      color: #23445b;
+      font-size: .78rem;
+      letter-spacing: .02em;
+      padding: 9px 0;
+    }
+    .topbar .container { display: flex; justify-content: space-between; gap: 20px; }
+    .topbar strong { color: #17304c; font-weight: 800; }
+
+    header {
+      position: absolute;
+      z-index: 2;
+      width: 100%;
+      color: var(--white);
+      padding: 24px 0;
+    }
+    nav { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.04em; }
+    .brand-mark {
+      position: relative; display: block; width: 39px; height: 39px;
+      overflow: hidden; border: 1px solid rgba(255,255,255,.45); border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f7fafb 0 5%, #b6c9d2 15%, #52748a 52%, #18324c 100%);
+      box-shadow: inset -7px -5px 10px rgba(4,18,35,.4), 0 4px 15px rgba(0,0,0,.16);
+    }
+    .brand-mark::before, .brand-mark::after {
+      content: ""; position: absolute; top: 50%; left: 50%; width: 51px; height: 16px;
+      border: 1px solid rgba(255,255,255,.8); border-radius: 50%;
+      transform: translate(-50%, -50%) rotate(-31deg);
+    }
+    .brand-mark::after { width: 19px; height: 48px; transform: translate(-50%, -50%) rotate(31deg); opacity: .72; }
+    .brand-copy { display: flex; flex-direction: column; line-height: 1; }
+    .brand-name { font-size: 1.27rem; font-weight: 800; }
+    .brand-name span { color: #74dcd4; font-style: italic; font-weight: 500; }
+    .brand-copy small { margin-top: 5px; color: rgba(255,255,255,.72); font-size: .43rem; font-weight: 700; letter-spacing: .24em; }
+    .nav-links { display: flex; align-items: center; gap: 28px; font-size: .9rem; font-weight: 600; }
+    .nav-links a { opacity: .84; transition: opacity .2s; }
+    .nav-links a:hover { opacity: 1; }
+    .nav-cta { padding: 10px 17px; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 620px;
+      color: var(--white);
+      background: var(--navy-deep);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: center 50% / cover no-repeat;
+      opacity: 0;
+      transition: opacity 2.4s ease;
+      z-index: 0;
+    }
+    .hero-bg.is-active { opacity: 1; }
+    .hero-tint {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 208, 116, .16) 0%, rgba(255, 235, 184, .04) 48%, rgba(242, 130, 107, .08) 100%),
+        linear-gradient(180deg, rgba(10, 25, 45, .32) 0%, rgba(10, 25, 45, .38) 45%, rgba(10, 25, 45, .68) 100%);
+      background-blend-mode: screen, normal;
+    }
+    .hero::after {
+      content: "";
+      position: absolute; width: 520px; height: 520px; right: -180px; bottom: -260px;
+      border: 1px solid rgba(255,255,255,.14); border-radius: 50%;
+      box-shadow: 0 0 0 42px rgba(255,255,255,.03), 0 0 0 84px rgba(255,255,255,.025);
+      z-index: 1;
+    }
+    .hero-content { position: relative; z-index: 2; padding: 120px 0 72px; max-width: 680px; }
+    .eyebrow { color: #79ddd5; font-size: .77rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { max-width: 650px; margin: 17px 0 22px; font-size: clamp(2.8rem, 6vw, 5.15rem); line-height: .99; letter-spacing: -.065em; }
+    h1 em { color: #7be0d7; font-style: normal; }
+    .hero-copy { max-width: 560px; color: #d7e5ea; font-size: 1.18rem; }
+    .destination-search { max-width: 610px; margin-top: 29px; }
+    .search-label { display: block; margin-bottom: 8px; color: #d7e5ea; font-size: .84rem; font-weight: 700; }
+    .search-row { display: flex; gap: 9px; padding: 7px; border: 1px solid rgba(255,255,255,.8); border-radius: 13px; background: var(--white); }
+    .search-row input { height: 46px; color: var(--ink); border: 0; background: var(--white); }
+    .search-row input::placeholder { color: #64748b; }
+    .search-row input:focus { box-shadow: none; }
+    .search-row .button { min-height: 46px; white-space: nowrap; }
+    .destination-result { display: none; padding: 17px 19px; margin-top: 10px; border: 1px solid rgba(123,224,215,.45); border-radius: 13px; color: #e8f5f5; background: rgba(7,30,46,.84); backdrop-filter: blur(8px); }
+    .destination-result.visible { display: block; }
+    .destination-result h3 { margin: 0 0 4px; font-size: 1.08rem; }
+    .destination-result p { margin: 0; color: #c8dce2; font-size: .89rem; }
+    .destination-result strong { color: #7be0d7; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 34px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 21px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 750; transition: transform .2s, box-shadow .2s, background .2s; }
+    .button:hover { transform: translateY(-2px); box-shadow: 0 9px 22px rgba(0,0,0,.16); }
+    .button-primary { color: var(--navy); background: var(--teal); }
+    .button-light { color: var(--white); border: 1px solid rgba(255,255,255,.36); background: rgba(255,255,255,.08); }
+    .trust-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 50px; color: #c8dce2; font-size: .86rem; }
+    .trust-row span::before { content: "✓"; margin-right: 8px; color: var(--teal); font-weight: 900; }
+
+    section { position: relative; padding: 92px 0; }
+    .section-heading { max-width: 610px; margin-bottom: 38px; }
+    .section-heading h2 { margin: 11px 0 14px; color: var(--navy); font-size: clamp(2rem, 4vw, 3.1rem); line-height: 1.05; letter-spacing: -.05em; }
+    .section-heading p { color: var(--muted); font-size: 1.05rem; }
+    .eyebrow-dark { color: var(--teal-dark); }
+
+    .path-section { overflow: hidden; background: linear-gradient(135deg, #fff 0%, #fff 72%, #fff3d8 100%); }
+    .path-section::after { content: ""; position: absolute; width: 220px; height: 220px; right: -80px; top: 80px; border: 30px solid rgba(242,130,107,.12); border-radius: 50%; }
+    .paths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .path-card { position: relative; z-index: 1; padding: 29px; border: 1px solid rgba(220,230,232,.85); border-radius: var(--radius); background: rgba(255,255,255,.9); box-shadow: 0 12px 30px rgba(16,36,62,.05); transition: transform .2s, box-shadow .2s; }
+    .path-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+    .path-icon { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 23px; border-radius: 16px; color: var(--teal-dark); background: linear-gradient(135deg, #dff5f2, #a9e7df); font-size: 1.4rem; font-weight: 900; }
+    .path-card:nth-child(2) .path-icon { color: #b5533e; background: #ffebe6; }
+    .path-card:nth-child(3) .path-icon { color: #526a9e; background: #e9effc; }
+    .path-card h3 { margin: 0 0 9px; color: var(--navy); font-size: 1.2rem; }
+    .path-card p { min-height: 72px; margin: 0 0 20px; color: var(--muted); font-size: .94rem; }
+    .text-link { color: var(--teal-dark); font-size: .9rem; font-weight: 800; }
+    .text-link::after { content: "  →"; }
+
+    .how-section { overflow: hidden; background: linear-gradient(180deg, #fff3d8 0%, var(--cream) 65%); }
+    .how-section::before { content: "✦"; position: absolute; right: 8%; top: 45px; color: rgba(242,130,107,.28); font-size: 5rem; transform: rotate(15deg); }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; counter-reset: steps; }
+    .step { position: relative; padding: 25px 20px; border-top: 3px solid var(--coral); }
+    .step::before { counter-increment: steps; content: "0" counter(steps); display: block; margin-bottom: 25px; color: var(--coral); font-size: .78rem; font-weight: 900; letter-spacing: .12em; }
+    .step h3 { margin: 0 0 8px; font-size: 1.08rem; }
+    .step p { margin: 0; color: var(--muted); font-size: .9rem; }
+
+    .form-section { overflow: hidden; background: radial-gradient(circle at 8% 14%, rgba(246,200,95,.18), transparent 24%), radial-gradient(circle at 92% 82%, rgba(25,167,160,.2), transparent 26%), var(--navy); }
+    .form-section::before { content: ""; position: absolute; width: 360px; height: 360px; left: -190px; bottom: -170px; border: 1px solid rgba(246,200,95,.32); border-radius: 50%; box-shadow: 0 0 0 35px rgba(246,200,95,.06), 0 0 0 70px rgba(246,200,95,.04); }
+    .form-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 70px; align-items: start; }
+    .form-section .section-heading h2 { color: var(--white); }
+    .form-section .section-heading p { color: #b8cbd1; }
+    .form-note { display: flex; gap: 10px; margin-top: 25px; color: #b8cbd1; font-size: .85rem; }
+    .form-note strong { color: var(--teal); }
+    .destination-collage { display: grid; grid-template-columns: 1.15fr .85fr; grid-template-rows: 82px 82px auto; gap: 8px; min-height: 172px; margin-top: 28px; }
+    .collage-photo { min-width: 0; overflow: hidden; border-radius: 13px; background: #25445b center / cover no-repeat; transition: background-image .35s ease, transform .35s ease; animation: collage-drift 7s ease-in-out infinite alternate; }
+    .collage-photo:first-child { grid-row: 1 / 3; }
+    .collage-photo:nth-child(2) { border-radius: 13px 13px 5px 13px; }
+    .collage-photo:nth-child(3) { border-radius: 5px 13px 13px 13px; }
+    .collage-photo:nth-child(2) { animation-delay: -2.2s; }
+    .collage-photo:nth-child(3) { animation-delay: -4.5s; }
+    .collage-photo.collage-empty { animation: none; }
+    .destination-collage.step-changing .collage-photo {
+      animation: collage-step-change .72s cubic-bezier(.22, .61, .36, 1);
+    }
+    .destination-collage.step-changing .collage-photo:nth-child(2) { animation-name: collage-step-change-alt; }
+    .destination-collage.step-changing .collage-photo:nth-child(3) { animation-name: collage-step-change-third; }
+    @keyframes collage-step-change {
+      0% { opacity: .62; transform: translate(-16px, 9px) rotate(-3deg) scale(.95); }
+      65% { opacity: 1; transform: translate(4px, -3px) rotate(1deg) scale(1.02); }
+      100% { opacity: 1; transform: translate(0, 0) rotate(-.7deg) scale(1); }
+    }
+    @keyframes collage-step-change-alt {
+      0% { opacity: .62; transform: translate(13px, -11px) rotate(3deg) scale(.95); }
+      65% { opacity: 1; transform: translate(-3px, 3px) rotate(-1deg) scale(1.02); }
+      100% { opacity: 1; transform: translate(0, 0) rotate(-.7deg) scale(1); }
+    }
+    @keyframes collage-step-change-third {
+      0% { opacity: .62; transform: translate(17px, 10px) rotate(3deg) scale(.95); }
+      65% { opacity: 1; transform: translate(-4px, -2px) rotate(-1deg) scale(1.02); }
+      100% { opacity: 1; transform: translate(0, 0) rotate(.7deg) scale(1); }
+    }
+    .destination-collage.layout-wide .collage-photo:first-child { animation-name: collage-drift-wide; }
+    .destination-collage.layout-stack .collage-photo:first-child { animation-name: collage-drift-stack; }
+    .destination-collage.layout-stack .collage-photo:nth-child(2) { transform: rotate(-1.2deg) translateY(2px); }
+    .destination-collage.layout-stack .collage-photo:nth-child(3) { transform: rotate(1.2deg) translateY(-2px); }
+    @keyframes collage-drift {
+      from { transform: translate(0, 0) rotate(-.7deg); }
+      to { transform: translate(3px, -3px) rotate(.7deg); }
+    }
+    @keyframes collage-drift-wide {
+      from { transform: translate(0, 0) rotate(-.4deg); }
+      to { transform: translate(-3px, 3px) rotate(.4deg); }
+    }
+    @keyframes collage-drift-stack {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(0, -3px) scale(1.015); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .collage-photo { animation: none; }
+    }
+    .collage-caption { grid-column: 1 / -1; align-self: end; padding: 0 4px; color: #b8cbd1; font-size: .75rem; }
+    .collage-caption strong { color: #7be0d7; }
+    .collage-empty { display: flex; align-items: end; padding: 17px; color: #d7e5ea; background: linear-gradient(135deg, #183b55, #2a7278); }
+    .collage-empty::after { content: "✦"; margin-left: auto; color: rgba(255,255,255,.35); font-size: 2.2rem; }
+    .travel-notebook { position: relative; clear: both; padding: 20px 18px 18px 25px; margin-top: 30px; border-radius: 5px 16px 16px 5px; color: #23445b; background: linear-gradient(135deg, #fff8e8, #ffe7b1); box-shadow: 8px 8px 0 rgba(5, 19, 34, .18); }
+    .travel-notebook::before { content: ""; position: absolute; top: 0; bottom: 0; left: 11px; border-left: 2px dotted rgba(123,224,215,.45); }
+    .travel-notebook h3 { position: relative; margin: 0 0 13px; color: var(--navy); font-size: 1.12rem; }
+    .travel-notebook h3 span { color: #7be0d7; }
+    .notebook-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .notebook-list li { position: relative; padding-left: 21px; color: #526a78; font-size: .8rem; }
+    .notebook-list li::before { content: "□"; position: absolute; left: 0; color: #7be0d7; font-size: 1rem; line-height: 1.1; }
+    .notebook-list li.completed { color: #23445b; font-weight: 700; }
+    .notebook-list li.completed::before { content: "✓"; font-weight: 900; }
+    .notebook-empty { color: #8a6b3e; font-size: .76rem; }
+    .destination-collage.layout-wide { grid-template-columns: .82fr 1.18fr; }
+    .destination-collage.layout-wide .collage-photo:first-child { grid-column: 2; }
+    .destination-collage.layout-wide .collage-photo:nth-child(2) { grid-column: 1; grid-row: 1; }
+    .destination-collage.layout-wide .collage-photo:nth-child(3) { grid-column: 1; grid-row: 2; }
+    .destination-collage.layout-stack { grid-template-columns: 1fr 1fr; grid-template-rows: 105px 59px auto; }
+    .destination-collage.layout-stack .collage-photo:first-child { grid-column: 1 / 3; grid-row: 1; }
+    .destination-collage.layout-stack .collage-photo:nth-child(2), .destination-collage.layout-stack .collage-photo:nth-child(3) { grid-row: 2; }
+    .destination-collage.step-changing .collage-photo:first-child { animation-name: collage-step-change; }
+    form { padding: 30px; border-radius: var(--radius); background: var(--white); box-shadow: var(--shadow); }
+    .planner-progress { display: flex; gap: 7px; margin-bottom: 25px; }
+    .planner-progress span { height: 4px; flex: 1; border-radius: 4px; background: #dce6e8; }
+    .planner-progress span.active { background: var(--teal); }
+    .planner-step { display: none; }
+    .planner-step.active { display: block; }
+    .planner-step h3 { margin: 0 0 5px; color: var(--navy); font-size: 1.25rem; }
+    .planner-step-kicker { margin-bottom: 7px; color: var(--teal-dark); font-size: .72rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+    .planner-step > p { margin: 0 0 20px; color: var(--muted); font-size: .9rem; }
+    .destination-visual { position: relative; min-height: 136px; display: flex; align-items: end; overflow: hidden; padding: 18px; margin-top: 17px; border-radius: 13px; color: var(--white); background: var(--navy) center / cover no-repeat; transition: background-image .35s ease; }
+    .destination-visual::before { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 24, 43, .9), rgba(7, 24, 43, .1)); }
+    .destination-visual-content { position: relative; z-index: 1; }
+    .destination-visual strong { display: block; margin-bottom: 3px; color: #7be0d7; font-size: 1.02rem; }
+    .destination-visual span { color: #e2eef0; font-size: .82rem; }
+    .activity-preview { display: none; margin-top: 17px; padding: 15px; border: 1px solid #b8e5df; border-radius: 13px; background: linear-gradient(135deg, #f3fffc, #fff8e8); }
+    .activity-preview.visible { display: block; }
+    .activity-preview h4 { margin: 0 0 10px; color: var(--navy); font-size: .95rem; }
+    .activity-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .activity-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 11px; border-radius: 9px; background: rgba(255,255,255,.88); box-shadow: 0 5px 14px rgba(16,36,62,.05); }
+    .activity-item strong { color: var(--ink); font-size: .84rem; }
+    .activity-item p { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .77rem; line-height: 1.35; }
+    .activity-meta { grid-column: 1 / -1; color: var(--teal-dark); font-size: .72rem; font-weight: 750; }
+    .activity-item a { flex: 0 0 auto; color: var(--teal-dark); font-size: .75rem; font-weight: 800; }
+    .activity-select { grid-column: 1 / -1; justify-self: start; padding: 6px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--teal-dark); background: var(--white); cursor: pointer; font-size: .74rem; font-weight: 800; }
+    .activity-item.selected { background: #eaf9f7; box-shadow: inset 0 0 0 1px var(--teal); }
+    .activity-item.selected .activity-select { color: var(--white); border-color: var(--teal-dark); background: var(--teal-dark); }
+    .activity-selection { margin-top: 10px; color: var(--teal-dark); font-size: .78rem; font-weight: 800; }
+    .planner-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 23px; }
+    .planner-actions .button { width: auto; min-width: 130px; margin-top: 0; }
+    .planner-actions .button-secondary { color: var(--navy); border: 1px solid var(--line); background: var(--white); }
+    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .choice { position: relative; }
+    .choice input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice label { display: block; padding: 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; color: var(--ink); }
+    .choice input:checked + label { border-color: var(--teal); background: #eaf9f7; box-shadow: inset 0 0 0 1px var(--teal); }
+    .traveler-row { display: grid; grid-template-columns: 1fr 110px 34px; gap: 8px; align-items: end; margin-bottom: 9px; }
+    .remove-traveler { width: 34px; height: 46px; border: 0; color: #b5533e; background: transparent; cursor: pointer; font-size: 1.1rem; }
+    .add-traveler { padding: 0; border: 0; color: var(--teal-dark); background: transparent; cursor: pointer; font-size: .86rem; font-weight: 800; }
+    .trip-summary { padding: 15px; margin-top: 18px; border-radius: 10px; color: #11655f; background: #eaf9f7; font-size: .88rem; }
+    .civitatis-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: var(--teal-dark); font-weight: 800; }
+    .civitatis-link::after { content: "↗"; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field-full { grid-column: 1 / -1; }
+    label { color: var(--navy); font-size: .82rem; font-weight: 750; }
+    input, select { width: 100%; height: 46px; padding: 0 13px; color: var(--ink); border: 1px solid var(--line); border-radius: 10px; outline: none; background: #fbfdfd; }
+    input:focus, select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(25,167,160,.13); }
+    form .button { width: 100%; margin-top: 22px; color: var(--white); background: var(--teal-dark); }
+    .form-success { display: none; padding: 16px; margin-top: 18px; border-radius: 10px; color: #11655f; background: #dff5f2; font-size: .9rem; }
+    .form-success.visible { display: block; }
+
+    .footer { padding: 30px 0; color: #b8cbd1; background: var(--navy-deep); font-size: .82rem; }
+    .footer .container { display: flex; justify-content: space-between; gap: 20px; }
+    .footer strong { color: var(--white); }
+
+    @media (max-width: 760px) {
+      .container { width: min(100% - 30px, 560px); }
+      .topbar .container, .footer .container { flex-direction: column; gap: 4px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      .hero { min-height: 590px; }
+      .hero-content { padding: 120px 0 60px; }
+      .hero-copy { font-size: 1.04rem; }
+      section { padding: 68px 0; }
+      .paths, .steps, .form-layout { grid-template-columns: 1fr; gap: 14px; }
+      .path-card p { min-height: auto; }
+      .form-layout { gap: 28px; }
+    }
+    @media (max-width: 470px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .field-full { grid-column: auto; }
+      form { padding: 21px; }
+      .hero-actions .button { width: 100%; }
+    }
   </style>
 </head>
 <body>
+  <header>
+    <div class="container">
+      <nav aria-label="Navegación principal">
+        <a class="brand" href="#" aria-label="TravelSupport inicio">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-copy"><span class="brand-name">travel<span>support</span></span><small>VIAJES Y TURISMO</small></span>
+        </a>
+        <div class="nav-links">
+          <a href="#servicios">Servicios</a>
+          <a href="#como-funciona">Cómo funciona</a>
+          <a class="nav-cta" href="#contacto">Contanos tu idea</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
   <main>
-    <h1>Travel<span class="accent">Support</span></h1>
-    <p>Sitio en construcción. Muy pronto vas a poder encontrar aquí toda la información sobre nuestros servicios.</p>
+    <section class="hero">
+      <div class="hero-bg is-active" id="hero-bg-a"></div>
+      <div class="hero-bg" id="hero-bg-b"></div>
+      <div class="hero-tint"></div>
+      <div class="container hero-content">
+        <div class="eyebrow">Tu viaje, más simple</div>
+        <h1>Viajá tranquilo.<br><em>Nos ocupamos del resto.</em></h1>
+        <p class="hero-copy">Planificamos tu viaje, ordenamos cada detalle y te acompañamos cuando más lo necesitás. Una persona real, en cada etapa.</p>
+        <div class="destination-search">
+          <label class="search-label" for="destination-search">¿Ya tenés un destino en mente?</label>
+          <div class="search-row">
+            <input id="destination-search" type="search" placeholder="Probá: Edimburgo, Patagonia..." autocomplete="off">
+            <button id="destination-button" class="button button-primary" type="button">Explorar</button>
+          </div>
+          <div id="destination-result" class="destination-result" role="status"></div>
+        </div>
+        <div class="hero-actions">
+          <a id="start-planner" class="button button-primary" href="#contacto">Empezar a planificar</a>
+          <a class="button button-light" href="#como-funciona">Conocé cómo funciona</a>
+        </div>
+        <div class="trust-row">
+          <span>Asesoramiento personalizado</span>
+          <span>Información en un solo lugar</span>
+          <span>Soporte durante el viaje</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto" class="form-section">
+      <div class="container form-layout">
+        <div>
+          <div class="section-heading">
+            <div class="eyebrow">Empecemos por vos</div>
+            <h2>Diseñemos un viaje a tu medida.</h2>
+            <p>Te hacemos unas preguntas simples para entender qué querés vivir. Al final, un especialista recibe tu idea y prepara el próximo paso.</p>
+          </div>
+          <div class="form-note"><strong>01</strong><span>Sin compromiso. Usamos tus datos sólo para preparar una propuesta relevante y contactarte de la manera que elijas.</span></div>
+          <div id="destination-collage" class="destination-collage" aria-label="Inspiración visual del destino">
+            <div class="collage-photo collage-empty"></div>
+            <div class="collage-photo collage-empty"></div>
+            <div class="collage-photo collage-empty"></div>
+            <div class="collage-caption"><strong>Inspiración TravelSupport</strong> · Imaginemos juntos tu próximo viaje.</div>
+          </div>
+          <aside id="travel-notebook" class="travel-notebook" aria-live="polite">
+            <h3>¡Tu próximo viaje! <span>Empezamos a soñarlo</span></h3>
+            <ul class="notebook-list">
+              <li>Elegí un destino</li>
+              <li>Definí tu experiencia y fechas</li>
+              <li>Sumá viajeros y presupuesto</li>
+              <li>Agregá excursiones</li>
+            </ul>
+            <div class="notebook-empty">Tus elecciones van a aparecer acá mientras avanzás.</div>
+          </aside>
+        </div>
+        <form id="travel-form">
+          <div class="planner-progress" aria-label="Progreso del planificador"><span class="active"></span><span></span><span></span><span></span><span></span></div>
+          <div class="planner-step active" data-step="1">
+            <h3>Empecemos por el destino</h3>
+            <p>Podés tenerlo decidido o dejar que te ayudemos a encontrarlo.</p>
+            <div class="field">
+              <label for="plan-destination">¿A dónde te gustaría viajar?</label>
+              <input id="plan-destination" name="destination" type="text" placeholder="Ej. Edimburgo, Patagonia..." required>
+            </div>
+            <div id="plan-destination-info" class="trip-summary" hidden></div>
+            <div id="plan-destination-visual" class="destination-visual" aria-live="polite">
+              <div class="destination-visual-content"><strong>Tu próximo destino</strong><span>Escribí una ciudad o región para comenzar a imaginarlo.</span></div>
+            </div>
+            <div id="activity-preview" class="activity-preview" aria-live="polite"></div>
+          </div>
+          <div class="planner-step" data-step="2">
+            <div class="planner-step-kicker">Paso 2 de 5 · Complementos</div>
+            <h3>¿Qué más querés sumar a tu viaje?</h3>
+            <p>Además de las excursiones, podemos ayudarte a buscar estos complementos. Elegí todos los que te interesen.</p>
+            <div class="choice-grid">
+              <div class="choice"><input id="addon-guided" name="tripAddons" value="Visitas guiadas" type="checkbox"><label for="addon-guided">✦ Visitas guiadas</label></div>
+              <div class="choice"><input id="addon-transfers" name="tripAddons" value="Traslados" type="checkbox"><label for="addon-transfers">↔ Traslados</label></div>
+              <div class="choice"><input id="addon-food" name="tripAddons" value="Experiencias gastronómicas" type="checkbox"><label for="addon-food">☼ Gastronomía</label></div>
+              <div class="choice"><input id="addon-shows" name="tripAddons" value="Entradas y espectáculos" type="checkbox"><label for="addon-shows">♪ Espectáculos</label></div>
+            </div>
+            <div id="addon-selection" class="activity-selection">Podés elegir una o varias opciones.</div>
+            <input id="selected-addons" name="selectedAddons" type="hidden" value="[]">
+            <div class="form-grid" style="margin-top:17px">
+              <div class="field"><label for="start-date">Fecha de salida</label><input id="start-date" name="startDate" type="date" required></div>
+              <div class="field"><label for="return-date">Fecha de regreso</label><input id="return-date" name="returnDate" type="date" required></div>
+            </div>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:.78rem;">Las fechas pueden ser aproximadas y se verificarán según la disponibilidad de los servicios.</p>
+          </div>
+          <div class="planner-step" data-step="3">
+            <h3>Contanos quiénes viajan</h3>
+            <p>Las edades nos ayudan a pensar un ritmo y actividades adecuados.</p>
+            <div id="travelers-list">
+              <div class="traveler-row"><div class="field"><label>Viajero/a</label><input name="travelerName" placeholder="Adulto 1" required></div><div class="field"><label>Edad</label><input name="travelerAge" type="number" min="0" max="110" placeholder="Edad" required></div><button class="remove-traveler" type="button" aria-label="Quitar viajero" hidden>×</button></div>
+            </div>
+            <button id="add-traveler" class="add-traveler" type="button">+ Agregar otra persona</button>
+          </div>
+          <div class="planner-step" data-step="4">
+            <h3>¿Qué inversión querés destinar?</h3>
+            <p>Es una referencia inicial para acercarte opciones realistas. No es un compromiso.</p>
+            <div class="choice-grid">
+              <div class="choice"><input id="budget-low" name="budget" value="Hasta USD 1.000 por persona" type="radio" required><label for="budget-low">Hasta USD 1.000</label></div>
+              <div class="choice"><input id="budget-mid" name="budget" value="USD 1.000 a 2.500 por persona" type="radio"><label for="budget-mid">USD 1.000 a 2.500</label></div>
+              <div class="choice"><input id="budget-high" name="budget" value="USD 2.500 a 5.000 por persona" type="radio"><label for="budget-high">USD 2.500 a 5.000</label></div>
+              <div class="choice"><input id="budget-custom" name="budget" value="Más de USD 5.000 por persona" type="radio"><label for="budget-custom">Más de USD 5.000</label></div>
+            </div>
+          </div>
+          <div class="planner-step" data-step="5">
+            <h3>¿Cómo te acercamos la propuesta?</h3>
+            <p>Un último paso y nos ponemos a trabajar en tu idea.</p>
+            <div class="form-grid">
+              <div class="field"><label for="lead-name">Nombre y apellido</label><input id="lead-name" name="name" autocomplete="name" required></div>
+              <div class="field"><label for="lead-email">Email</label><input id="lead-email" name="email" type="email" autocomplete="email" required></div>
+              <div class="field field-full"><label for="lead-phone">WhatsApp o teléfono <span style="font-weight:400;color:var(--muted)">(preferido)</span></label><input id="lead-phone" name="phone" type="tel" autocomplete="tel" required></div>
+            </div>
+            <div id="selected-activities-summary" class="trip-summary">Todavía no seleccionaste excursiones.</div>
+            <input id="selected-activities" name="selectedActivities" type="hidden" value="[]">
+            <div class="trip-summary">Tu consulta queda guardada sólo en este dispositivo por ahora. En la siguiente etapa la conectaremos con nuestro equipo.</div>
+          </div>
+          <div class="planner-actions"><button id="planner-back" class="button button-secondary" type="button" hidden>Volver</button><button id="planner-next" class="button" type="button">Continuar</button></div>
+          <div id="form-success" class="form-success" role="status">¡Listo! Guardamos tu viaje en este dispositivo. Ya tenemos una primera idea para empezar a diseñarlo.</div>
+        </form>
+      </div>
+    </section>
+
+    <section id="servicios" class="path-section">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow eyebrow-dark">Elegí tu punto de partida</div>
+          <h2>¿Qué necesitás para viajar mejor?</h2>
+          <p>No importa si ya tenés todo decidido o si recién estás empezando. Armamos el camino que mejor se adapta a vos.</p>
+        </div>
+        <div class="paths">
+          <article class="path-card">
+            <div class="path-icon">↗</div>
+            <h3>Quiero planificar un viaje</h3>
+            <p>Convertimos una idea en un itinerario claro, realista y pensado para tu forma de viajar.</p>
+            <a class="text-link" href="#contacto">Contarnos mi idea</a>
+          </article>
+          <article class="path-card">
+            <div class="path-icon">◌</div>
+            <h3>Necesito asistencia</h3>
+            <p>Te ayudamos antes y durante el viaje con reservas, cambios, documentación y lo inesperado.</p>
+            <a class="text-link" href="#contacto">Quiero hablar con alguien</a>
+          </article>
+          <article class="path-card">
+            <div class="path-icon">✦</div>
+            <h3>No sé por dónde empezar</h3>
+            <p>Te hacemos las preguntas correctas y encontramos una experiencia que tenga sentido para vos.</p>
+            <a class="text-link" href="#contacto">Encontrar mi viaje</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="como-funciona" class="how-section">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow eyebrow-dark">Una forma distinta de acompañarte</div>
+          <h2>Del primer mensaje al regreso a casa.</h2>
+          <p>Menos pestañas abiertas, menos dudas y más tiempo para disfrutar lo importante.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><h3>Nos contás</h3><p>Entendemos tu destino, tus tiempos, tu presupuesto y tus prioridades.</p></div>
+          <div class="step"><h3>Lo diseñamos</h3><p>Un especialista arma opciones y te explica cada decisión con claridad.</p></div>
+          <div class="step"><h3>Lo ordenamos</h3><p>Itinerario, reservas y documentación quedan organizados en un solo lugar.</p></div>
+          <div class="step"><h3>Te acompañamos</h3><p>Seguimos cerca antes, durante y después del viaje.</p></div>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <footer class="footer">
+    <div class="container">
+      <span><strong>TravelSupport</strong> · Viajá con respaldo.</span>
+      <span>Proyecto en desarrollo · Todo empieza con una buena pregunta.</span>
+    </div>
+  </footer>
+
+  <script>
+    const destinations = [
+      {
+        names: ["edimburgo", "edinburgh", "escocia"],
+        title: "Edimburgo, Escocia",
+        description: "Una ciudad de historia, pubs y paisajes. Ideal para combinar castillos, caminatas por Old Town y una escapada a las Highlands.",
+        ideas: "Castillo de Edimburgo · Royal Mile · Arthur's Seat",
+        tip: "Reservá tiempo para las Highlands si el viaje supera los 5 días.",
+        image: "https://images.unsplash.com/photo-1506377585622-bedcbb027afc?auto=format&fit=crop&w=1200&q=82",
+        collage: [
+          "https://images.unsplash.com/photo-1506377585622-bedcbb027afc?auto=format&fit=crop&w=900&q=80",
+          "https://images.unsplash.com/photo-1508527519564-4b86e1dc8b84?auto=format&fit=crop&w=700&q=80",
+          "https://images.unsplash.com/photo-1524498250077-390f9e378fc0?auto=format&fit=crop&w=700&q=80"
+        ],
+        collageLayout: "layout-wide",
+        civitatisUrl: "https://www.civitatis.com/es/edimburgo/",
+        activities: [
+          { name: "Excursión a las Highlands", description: "Paisajes de montaña, lagos y pueblos históricos en una salida ideal para conocer los alrededores de Escocia.", duration: "Día completo", idealFor: "Naturaleza y fotografía" },
+          { name: "Visita guiada por el castillo", description: "Recorrido por uno de los monumentos más importantes de la ciudad, con contexto histórico y vistas panorámicas.", duration: "2 a 3 horas", idealFor: "Historia y cultura" },
+          { name: "Tour por la Royal Mile", description: "Caminata por el corazón del Old Town, sus callejones, edificios históricos y relatos locales.", duration: "2 horas", idealFor: "Primera visita y caminatas" }
+        ]
+      },
+      {
+        names: ["patagonia", "bariloche", "el calafate"],
+        title: "Patagonia, Argentina",
+        description: "Naturaleza, gastronomía y aventura en un viaje que puede adaptarse a una escapada corta o a un recorrido más amplio.",
+        ideas: "Lagos y montañas · Glaciares · Rutas escénicas",
+        tip: "La mejor experiencia cambia mucho según la temporada y el ritmo del grupo.",
+        image: "https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=1200&q=82",
+        collage: [
+          "https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=900&q=80",
+          "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=700&q=80",
+          "https://images.unsplash.com/photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=700&q=80"
+        ],
+        collageLayout: "layout-stack",
+        civitatisUrl: "https://www.civitatis.com/es/argentina/",
+        activities: [
+          { name: "Excursión al glaciar Perito Moreno", description: "Una jornada para contemplar las pasarelas y el frente del glaciar más emblemático de la Patagonia.", duration: "Día completo", idealFor: "Paisajes y naturaleza" },
+          { name: "Circuito Chico en Bariloche", description: "Recorrido escénico por lagos, bosques y miradores cercanos a San Carlos de Bariloche.", duration: "Medio día", idealFor: "Familias y primera visita" },
+          { name: "Experiencia de navegación patagónica", description: "Navegación entre montañas y glaciares para disfrutar la Patagonia desde otra perspectiva.", duration: "Medio día o día completo", idealFor: "Aventura y fotografía" }
+        ]
+      },
+      {
+        names: ["roma", "italia"],
+        title: "Roma, Italia",
+        description: "Historia viva, barrios para caminar y una gastronomía que se disfruta sin apuro. Una base excelente para conocer Italia.",
+        ideas: "Coliseo · Trastevere · Ciudad del Vaticano",
+        tip: "Conviene alternar días de visitas intensas con caminatas de barrio y gastronomía.",
+        image: "https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1200&q=82",
+        collage: [
+          "https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=900&q=80",
+          "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=700&q=80",
+          "https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=700&q=80"
+        ],
+        collageLayout: "layout-wide",
+        civitatisUrl: "https://www.civitatis.com/es/roma/",
+        activities: [
+          { name: "Visita guiada por el Coliseo", description: "Conocé el Coliseo, el Foro Romano y el Palatino con una explicación para entender la historia de la antigua Roma.", duration: "2 a 3 horas", idealFor: "Historia y primera visita" },
+          { name: "Excursión a Pompeya", description: "Descubrí las ruinas de la ciudad sepultada por el Vesubio y sus calles, casas y espacios públicos conservados.", duration: "Día completo", idealFor: "Historia y arqueología" },
+          { name: "Tour por el Vaticano", description: "Recorrido por los Museos Vaticanos, la Capilla Sixtina y los principales espacios artísticos del Vaticano.", duration: "3 a 4 horas", idealFor: "Arte y cultura" }
+        ]
+      },
+      {
+        names: ["buenos aires", "baires", "caba"],
+        title: "Buenos Aires, Argentina",
+        description: "Cultura, barrios, fútbol y gastronomía en una ciudad ideal para descubrir con una mirada local.",
+        ideas: "San Telmo · Palermo · La Boca",
+        tip: "Podemos combinar una primera visita clásica con experiencias gastronómicas locales.",
+        image: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Obelisco_de_Buenos_Aires_at_sunset.jpg/960px-Obelisco_de_Buenos_Aires_at_sunset.jpg",
+        collage: [
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Obelisco_de_Buenos_Aires_at_sunset.jpg/960px-Obelisco_de_Buenos_Aires_at_sunset.jpg",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Colores_del_Caminito%2C_Buenos_Aires_ARG.jpg/960px-Colores_del_Caminito%2C_Buenos_Aires_ARG.jpg",
+          "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Puerto_Madero%2C_Buenos_Aires%2C_Argentina%2C_2024.jpg/960px-Puerto_Madero%2C_Buenos_Aires%2C_Argentina%2C_2024.jpg"
+        ],
+        collageLayout: "layout-stack",
+        civitatisUrl: "https://www.civitatis.com/es/buenos-aires/",
+        activities: [
+          { name: "Cena y espectáculo de tango", description: "Una noche de música, baile y gastronomía para conocer una de las expresiones culturales más reconocidas de la ciudad.", duration: "3 a 4 horas", idealFor: "Gastronomía y cultura" },
+          { name: "Free tour por Buenos Aires", description: "Caminata introductoria por los barrios y puntos históricos más importantes, acompañada por un guía local.", duration: "2 a 3 horas", idealFor: "Primera visita y caminatas" },
+          { name: "Excursión al Delta del Tigre", description: "Escapada desde la ciudad para navegar entre islas, ríos y paisajes tranquilos del Delta del Paraná.", duration: "Medio día", idealFor: "Familias y naturaleza" }
+        ]
+      }
+    ];
+
+    const searchInput = document.getElementById("destination-search");
+    const searchButton = document.getElementById("destination-button");
+    const result = document.getElementById("destination-result");
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      }[character]));
+    }
+
+    function renderLocalDestination(query) {
+      return destinations.find((item) => item.names.some((name) => name.includes(query) || query.includes(name)));
+    }
+
+    // El aid se agrega sólo cuando TravelSupport sea aprobado en el programa de afiliados.
+    const civitatisAffiliateId = "";
+    let selectedActivities = [];
+    let selectedAddons = [];
+    let selectedDestinationTitle = "";
+
+    function buildCivitatisUrl(destination) {
+      if (!destination.civitatisUrl) return "";
+      return civitatisAffiliateId
+        ? `${destination.civitatisUrl}?aid=${encodeURIComponent(civitatisAffiliateId)}`
+        : destination.civitatisUrl;
+    }
+
+    function showPlannerDestination() {
+      const input = document.getElementById("plan-destination");
+      const info = document.getElementById("plan-destination-info");
+      const visual = document.getElementById("plan-destination-visual");
+      const activityPreview = document.getElementById("activity-preview");
+      const collage = document.getElementById("destination-collage");
+      const collagePhotos = [...collage.querySelectorAll(".collage-photo")];
+      const destination = renderLocalDestination(input.value.trim().toLocaleLowerCase());
+      if (!destination) {
+        selectedActivities = [];
+        selectedDestinationTitle = "";
+        syncSelectedActivities();
+        info.hidden = true;
+        visual.style.backgroundImage = "";
+        visual.querySelector("strong").textContent = "Tu próximo destino";
+        visual.querySelector("span").textContent = "Escribí una ciudad o región para comenzar a imaginarlo.";
+        collage.className = "destination-collage";
+        collagePhotos.forEach((photo) => {
+          photo.className = "collage-photo collage-empty";
+          photo.style.backgroundImage = "";
+        });
+        collage.querySelector(".collage-caption").innerHTML = "<strong>Inspiración TravelSupport</strong> · Imaginemos juntos tu próximo viaje.";
+        activityPreview.classList.remove("visible");
+        activityPreview.innerHTML = "";
+        return;
+      }
+      if (selectedDestinationTitle && selectedDestinationTitle !== destination.title) {
+        selectedActivities = [];
+      }
+      selectedDestinationTitle = destination.title;
+      const civitatisUrl = buildCivitatisUrl(destination);
+      const civitatisLink = civitatisUrl
+        ? `<br><a class="civitatis-link" href="${civitatisUrl}" target="_blank" rel="noopener noreferrer">Explorar excursiones en Civitatis</a>`
+        : "";
+      info.innerHTML = `<strong>${destination.title}</strong><br>${destination.description}<br><br><strong>Ideas:</strong> ${destination.ideas}<br><strong>Tip TravelSupport:</strong> ${destination.tip}${civitatisLink}`;
+      info.hidden = false;
+      visual.style.backgroundImage = `url("${destination.image}")`;
+      visual.querySelector("strong").textContent = destination.title;
+      visual.querySelector("span").textContent = "Una primera inspiración de TravelSupport para tu viaje.";
+      const activities = (destination.activities || []).map((activity, index) => {
+        const selected = selectedActivities.some((item) => item.name === activity.name);
+        return `<li class="activity-item${selected ? " selected" : ""}" data-activity-index="${index}"><strong>${escapeHtml(activity.name)}</strong><a href="${buildCivitatisUrl(destination)}" target="_blank" rel="noopener noreferrer">Ver opciones ↗</a><p>${escapeHtml(activity.description)}</p><span class="activity-meta">${escapeHtml(activity.duration)} · Ideal para: ${escapeHtml(activity.idealFor)}</span><button class="activity-select" type="button">${selected ? "Agregada al viaje ✓" : "Agregar al viaje +"}</button></li>`;
+      }).join("");
+      activityPreview.innerHTML = `<h4>Ideas para hacer en ${escapeHtml(destination.title.split(",")[0])}</h4><ul class="activity-list">${activities}</ul><div class="activity-selection"></div><small>Propuestas orientativas. La disponibilidad y el precio se verifican al solicitar la cotización.</small>`;
+      activityPreview.classList.add("visible");
+      activityPreview.querySelectorAll(".activity-select").forEach((button) => {
+        button.addEventListener("click", () => {
+          const activity = destination.activities[Number(button.closest(".activity-item").dataset.activityIndex)];
+          const existingIndex = selectedActivities.findIndex((item) => item.name === activity.name);
+          if (existingIndex >= 0) {
+            selectedActivities.splice(existingIndex, 1);
+          } else {
+            selectedActivities.push({ name: activity.name, description: activity.description, duration: activity.duration, idealFor: activity.idealFor });
+          }
+          syncSelectedActivities();
+          showPlannerDestination();
+        });
+      });
+      syncSelectedActivities();
+      collage.className = `destination-collage ${destination.collageLayout}`;
+      collagePhotos.forEach((photo, index) => {
+        photo.className = "collage-photo";
+        photo.style.backgroundImage = `url("${destination.collage[index]}")`;
+      });
+      collage.querySelector(".collage-caption").innerHTML = `<strong>${destination.title}</strong> · Una mirada inicial para empezar a soñarlo.`;
+    }
+
+    function syncSelectedActivities() {
+      document.getElementById("selected-activities").value = JSON.stringify(selectedActivities);
+      const summary = document.getElementById("selected-activities-summary");
+      if (!summary) return;
+      summary.innerHTML = selectedActivities.length
+        ? `<strong>Excursiones elegidas (${selectedActivities.length}):</strong> ${selectedActivities.map((activity) => escapeHtml(activity.name)).join(" · ")}`
+        : "Todavía no seleccionaste excursiones.";
+      const selection = document.querySelector("#activity-preview .activity-selection");
+      if (selection) selection.textContent = selectedActivities.length ? `${selectedActivities.length} excursión${selectedActivities.length === 1 ? "" : "es"} agregada${selectedActivities.length === 1 ? "" : "s"} a tu viaje.` : "Podés agregar una o varias excursiones a tu viaje.";
+      updateTravelNotebook();
+    }
+
+    function syncSelectedAddons() {
+      selectedAddons = [...form.querySelectorAll('input[name="tripAddons"]:checked')].map((input) => input.value);
+      document.getElementById("selected-addons").value = JSON.stringify(selectedAddons);
+      const summary = document.getElementById("addon-selection");
+      if (summary) {
+        summary.textContent = selectedAddons.length
+          ? `${selectedAddons.length} complemento${selectedAddons.length === 1 ? "" : "s"} elegido${selectedAddons.length === 1 ? "" : "s"}.`
+          : "Podés elegir una o varias opciones.";
+      }
+      updateTravelNotebook();
+    }
+
+    function formatNotebookDate(value) {
+      if (!value) return "fecha a definir";
+      const date = new Date(`${value}T00:00:00`);
+      return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("es-AR", { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    function updateTravelNotebook() {
+      const notebook = document.getElementById("travel-notebook");
+      if (!notebook) return;
+      const destination = document.getElementById("plan-destination").value.trim();
+      const addons = selectedAddons;
+      const start = document.getElementById("start-date").value;
+      const end = document.getElementById("return-date").value;
+      const budget = form?.querySelector('[name="budget"]:checked')?.value || "";
+      const travelerCount = document.querySelectorAll("#travelers-list .traveler-row").length;
+      const travelersComplete = [...document.querySelectorAll('#travelers-list input[name="travelerName"], #travelers-list input[name="travelerAge"]')].every((field) => field.value.trim() !== "");
+      const items = [
+        { text: destination ? `Destino: ${destination}` : "Elegí un destino", completed: Boolean(destination) },
+        { text: addons.length ? `Complementos: ${addons.join(" · ")}` : "Podés sumar visitas, traslados o experiencias", completed: addons.length > 0 },
+        { text: start || end ? `Fechas: ${formatNotebookDate(start)} → ${formatNotebookDate(end)}` : "Definí las fechas del viaje", completed: Boolean(start && end) },
+        { text: `${travelerCount} viajero${travelerCount === 1 ? "" : "s"}${travelersComplete ? " cargados" : " por completar"}`, completed: travelersComplete },
+        { text: budget || "Definí tu presupuesto", completed: Boolean(budget) },
+        { text: selectedActivities.length ? `${selectedActivities.length} excursión${selectedActivities.length === 1 ? "" : "es"} elegida${selectedActivities.length === 1 ? "" : "s"}` : "Podés sumar excursiones", completed: selectedActivities.length > 0 }
+      ];
+      notebook.querySelector("h3").innerHTML = `¡Tu próximo viaje! <span>${escapeHtml(destination || "lo imaginamos juntos")}</span>`;
+      notebook.querySelector(".notebook-list").innerHTML = items.map((item) => `<li class="${item.completed ? "completed" : ""}">${escapeHtml(item.text)}</li>`).join("");
+      notebook.querySelector(".notebook-empty").textContent = items.some((item) => item.completed) ? "Tu idea se va armando paso a paso." : "Tus elecciones van a aparecer acá mientras avanzás.";
+    }
+
+    function renderDestinationResult(query, destination, places = []) {
+      if (destination) {
+        result.innerHTML = `<h3>${destination.title}</h3><p>${destination.description}</p><p><strong>Para empezar:</strong> ${destination.ideas}</p>`;
+      } else if (places.length) {
+        const placeLinks = places.slice(0, 3).map((place) => {
+          const link = place.mapUrl ? `<a href="${escapeHtml(place.mapUrl)}" target="_blank" rel="noreferrer"><strong>${escapeHtml(place.name)}</strong></a>` : `<strong>${escapeHtml(place.name)}</strong>`;
+          return `<li>${link}${place.address ? ` · ${escapeHtml(place.address)}` : ""}</li>`;
+        }).join("");
+        result.innerHTML = `<h3>Resultados para “${escapeHtml(query)}”</h3><p>Encontramos lugares para empezar a explorar:</p><ul>${placeLinks}</ul>`;
+      } else if (!query) {
+        result.innerHTML = "Escribí un destino para ver ideas seleccionadas por TravelSupport.";
+      } else {
+        result.innerHTML = `<h3>Ese destino todavía está en desarrollo</h3><p>Podemos investigarlo y armar una propuesta a medida. <a href="#contacto"><strong>Contanos tu idea →</strong></a></p>`;
+      }
+      result.classList.add("visible");
+    }
+
+    async function searchDestination() {
+      const query = searchInput.value.trim().toLocaleLowerCase();
+      const destination = renderLocalDestination(query);
+      renderDestinationResult(query, destination);
+      if (!query || destination) return;
+
+      try {
+        const response = await fetch(`api/destinations.php?q=${encodeURIComponent(query)}`);
+        if (!response.ok) return;
+        const data = await response.json();
+        renderDestinationResult(query, destination, data.places || []);
+      } catch (error) {
+        console.info("Google Places no está disponible; se mantiene el catálogo local.", error);
+      }
+    }
+
+    searchButton.addEventListener("click", searchDestination);
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") searchDestination();
+    });
+
+    const planDestination = document.getElementById("plan-destination");
+    planDestination.addEventListener("input", showPlannerDestination);
+    const startDate = document.getElementById("start-date");
+    const returnDate = document.getElementById("return-date");
+    startDate.addEventListener("change", () => {
+      returnDate.min = startDate.value;
+      if (returnDate.value && returnDate.value < startDate.value) returnDate.value = "";
+    });
+    document.getElementById("start-planner").addEventListener("click", () => {
+      const selectedDestination = searchInput.value.trim();
+      if (selectedDestination) {
+        planDestination.value = selectedDestination;
+        showPlannerDestination();
+      }
+      currentStep = 0;
+      updatePlanner();
+      window.setTimeout(() => planDestination.focus(), 350);
+    });
+
+    document.getElementById("add-traveler").addEventListener("click", () => {
+      const list = document.getElementById("travelers-list");
+      const row = document.createElement("div");
+      row.className = "traveler-row";
+      row.innerHTML = `<div class="field"><label>Viajero/a</label><input name="travelerName" placeholder="Nombre o relación" required></div><div class="field"><label>Edad</label><input name="travelerAge" type="number" min="0" max="110" placeholder="Edad" required></div><button class="remove-traveler" type="button" aria-label="Quitar viajero">×</button>`;
+      row.querySelector(".remove-traveler").addEventListener("click", () => row.remove());
+      list.appendChild(row);
+      updateTravelNotebook();
+    });
+
+    const form = document.getElementById("travel-form");
+    const steps = [...form.querySelectorAll(".planner-step")];
+    const progress = [...form.querySelectorAll(".planner-progress span")];
+    const backButton = document.getElementById("planner-back");
+    const nextButton = document.getElementById("planner-next");
+    let currentStep = 0;
+    form.addEventListener("input", updateTravelNotebook);
+    form.addEventListener("change", () => {
+      syncSelectedAddons();
+      updateTravelNotebook();
+    });
+
+    function updatePlanner() {
+      steps.forEach((step, index) => step.classList.toggle("active", index === currentStep));
+      progress.forEach((item, index) => item.classList.toggle("active", index <= currentStep));
+      backButton.hidden = currentStep === 0;
+      nextButton.textContent = currentStep === steps.length - 1 ? "Guardar mi viaje" : "Continuar";
+      const collage = document.getElementById("destination-collage");
+      collage.classList.remove("step-changing");
+      void collage.offsetWidth;
+      collage.classList.add("step-changing");
+      updateTravelNotebook();
+    }
+
+    function currentStepIsValid() {
+      const fields = steps[currentStep].querySelectorAll("input, select");
+      for (const field of fields) {
+        if (!field.checkValidity()) {
+          field.reportValidity();
+          return false;
+        }
+      }
+      return true;
+    }
+
+    nextButton.addEventListener("click", async () => {
+      if (!currentStepIsValid()) return;
+      if (currentStep < steps.length - 1) {
+        currentStep += 1;
+        updatePlanner();
+        return;
+      }
+      const formData = new FormData(form);
+      const travelers = [...form.querySelectorAll(".traveler-row")].map((row) => ({
+        name: row.querySelector('[name="travelerName"]').value,
+        age: row.querySelector('[name="travelerAge"]').value
+      }));
+      const data = Object.fromEntries(formData.entries());
+      const payload = { ...data, travelers, source: "guided-planner" };
+
+      nextButton.disabled = true;
+      nextButton.textContent = "Enviando...";
+      try {
+        const response = await fetch("api/submit-lead.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) throw new Error("submit_failed");
+        document.getElementById("form-success").classList.add("visible");
+        nextButton.textContent = "Viaje guardado";
+      } catch (err) {
+        nextButton.disabled = false;
+        nextButton.textContent = "Guardar mi viaje";
+        alert("No pudimos enviar tu consulta. Probá de nuevo en unos segundos.");
+      }
+    });
+
+    backButton.addEventListener("click", () => {
+      if (currentStep > 0) {
+        currentStep -= 1;
+        updatePlanner();
+      }
+    });
+
+    updatePlanner();
+  </script>
+  <script>
+    const heroPhotos = [
+      { url: "https://images.unsplash.com/photo-1546436836-07a91091f160?auto=format&fit=crop&w=2400&q=80", city: "Nueva York" },
+      { url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=2400&q=80", city: "París" },
+      { url: "https://images.unsplash.com/photo-1583422409516-2895a77efded?auto=format&fit=crop&w=2400&q=80", city: "Barcelona" },
+      { url: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=2400&q=80", city: "Dubai" },
+      { url: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=2400&q=80", city: "Kioto" },
+      { url: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=2400&q=80", city: "Roma" },
+      { url: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=2400&q=80", city: "Santorini" }
+    ];
+
+    (function rotateHeroBackground() {
+      const layerA = document.getElementById("hero-bg-a");
+      const layerB = document.getElementById("hero-bg-b");
+      if (!layerA || !layerB || !heroPhotos.length) return;
+
+      layerA.style.backgroundImage = `url("${heroPhotos[0].url}")`;
+
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReducedMotion || heroPhotos.length < 2) return;
+
+      let index = 0;
+      let showingA = true;
+
+      heroPhotos.slice(1).forEach((photo) => { new Image().src = photo.url; });
+
+      setInterval(() => {
+        index = (index + 1) % heroPhotos.length;
+        const nextPhoto = heroPhotos[index];
+        const incoming = showingA ? layerB : layerA;
+        const outgoing = showingA ? layerA : layerB;
+
+        incoming.style.backgroundImage = `url("${nextPhoto.url}")`;
+        incoming.classList.add("is-active");
+        outgoing.classList.remove("is-active");
+        showingA = !showingA;
+      }, 7000);
+    })();
+  </script>
 </body>
 </html>

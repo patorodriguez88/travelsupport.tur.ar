@@ -47,6 +47,11 @@ ts_admin_layout_start('Nueva cotización');
   .cover-option.selected { border-color: var(--teal); }
   .cover-option span { position: absolute; bottom: 2px; left: 4px; right: 4px; font-size: .6rem; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
   #cover-preview { margin-top: 10px; width: 100%; max-width: 320px; height: 130px; border-radius: 10px; background-size: cover; background-position: center; background-color: #e9eef0; }
+
+  @media (max-width: 700px) {
+    .grid, .grid3 { grid-template-columns: 1fr; }
+    #cover-preview { max-width: 100%; }
+  }
 </style>
 <a class="back-link" href="<?= $consultaId ? 'consulta.php?id=' . $consultaId : 'index.php' ?>">&larr; Volver</a>
 <div class="card">

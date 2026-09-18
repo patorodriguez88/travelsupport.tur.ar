@@ -89,6 +89,18 @@ function ts_render_quote_html(array $q, string $logoSrc): string
   .note p.important { font-style: italic; color:#10243e; margin-bottom: 8px; font-size: 11.5px; }
   .closing { margin-top: 22px; font-size: 14px; text-align: center; padding-top: 18px; border-top: 1px dashed #dce6e8; }
   .closing .emoji { font-size: 22px; display:block; margin-bottom: 6px; }
+
+  @media only screen and (max-width: 560px) {
+    body { padding: 0; }
+    .sheet { border-radius: 0; }
+    .inner, .body-pad { padding-left: 20px; padding-right: 20px; }
+    .cover { height: 170px; }
+    .cover-dest { font-size: 24px; }
+    table.cols, table.cols tbody, table.cols tr, table.cols td { display: block; width: 100% !important; }
+    table.cols td { padding: 0 0 14px !important; }
+    table.opts, table.opts tbody, table.opts tr { display: block; }
+    .opt-col { display: block; width: 100% !important; margin-bottom: 10px; }
+  }
 </style>
 </head>
 <body>

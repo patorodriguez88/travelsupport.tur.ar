@@ -68,6 +68,21 @@ function ts_admin_layout_start(string $title, string $activeStatus = ''): void
   .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
   .empty { padding: 40px; text-align: center; color: var(--muted); }
   .back-link { display: inline-block; margin-bottom: 16px; color: var(--teal); font-weight: 600; font-size: .85rem; }
+
+  @media (max-width: 780px) {
+    .shell { flex-direction: column; }
+    .sidebar { width: 100%; flex-direction: row; align-items: center; padding: 12px 14px; gap: 6px; overflow-x: auto; }
+    .sidebar-logo { margin-bottom: 0; padding: 0; flex-shrink: 0; }
+    .sidebar-logo img { max-width: 120px; }
+    .nav-section-label { display: none; }
+    .nav-link { flex-shrink: 0; margin-bottom: 0; white-space: nowrap; }
+    .nav-count { display: none; }
+    .sidebar-foot { margin-top: 0; padding-top: 0; border-top: none; flex-shrink: 0; margin-left: auto; }
+    .content { padding: 18px 16px 40px; }
+    .card { padding: 16px; overflow-x: auto; }
+    table { min-width: 620px; }
+    .page-head { align-items: flex-start; }
+  }
 </style>
 </head>
 <body>

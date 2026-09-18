@@ -45,6 +45,7 @@ $q = [
     'start_date' => ts_clean('start_date'),
     'return_date' => ts_clean('return_date'),
     'passengers' => ts_clean('passengers'),
+    'cover_photo_url' => ts_clean('cover_photo_url'),
     'includes' => $includes,
     'excludes' => $excludes,
     'options' => $options,
@@ -59,7 +60,7 @@ if (!$q['client_name'] || !filter_var($q['client_email'], FILTER_VALIDATE_EMAIL)
     exit;
 }
 
-$logoPath = __DIR__ . '/../assets/logo.png';
+$logoPath = __DIR__ . '/../assets/logo-dark.svg';
 $htmlForEmail = ts_render_quote_html($q, 'cid:logo');
 
 $smtp = ts_config()['smtp'];
@@ -81,7 +82,7 @@ try {
     $mail->addReplyTo($smtp['user'], $smtp['from_name']);
 
     if (is_file($logoPath)) {
-        $mail->addEmbeddedImage($logoPath, 'logo');
+        $mail->addEmbeddedImage($logoPath, 'logo', 'logo.svg', PHPMailer::ENCODING_BASE64, 'image/svg+xml');
     }
 
     $mail->isHTML(true);
@@ -97,14 +98,15 @@ try {
 }
 
 $stmt = ts_db()->prepare(
-    'INSERT INTO cotizaciones (consulta_id, client_name, client_email, destination, nights, regimen, start_date, return_date, passengers, includes, excludes, options, payment_terms, valid_until, sent_at)
-     VALUES (:consulta_id, :client_name, :client_email, :destination, :nights, :regimen, :start_date, :return_date, :passengers, :includes, :excludes, :options, :payment_terms, :valid_until, :sent_at)'
+    'INSERT INTO cotizaciones (consulta_id, client_name, client_email, destination, cover_photo_url, nights, regimen, start_date, return_date, passengers, includes, excludes, options, payment_terms, valid_until, sent_at)
+     VALUES (:consulta_id, :client_name, :client_email, :destination, :cover_photo_url, :nights, :regimen, :start_date, :return_date, :passengers, :includes, :excludes, :options, :payment_terms, :valid_until, :sent_at)'
 );
 $stmt->execute([
     'consulta_id' => $consultaId,
     'client_name' => $q['client_name'],
     'client_email' => $q['client_email'],
     'destination' => $q['destination'],
+    'cover_photo_url' => $q['cover_photo_url'] ?: null,
     'nights' => $q['nights'],
     'regimen' => $q['regimen'],
     'start_date' => $q['start_date'],

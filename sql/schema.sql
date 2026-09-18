@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS consultas (
   addons JSON NULL,
   activities JSON NULL,
   source VARCHAR(50) NOT NULL DEFAULT 'guided-planner',
-  status ENUM('nueva', 'contactada', 'cotizada', 'cerrada') NOT NULL DEFAULT 'nueva',
+  status ENUM('nueva', 'contactada', 'cotizada', 'cerrada', 'descartada') NOT NULL DEFAULT 'nueva',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS cotizaciones (
   client_name VARCHAR(150) NOT NULL,
   client_email VARCHAR(150) NOT NULL,
   destination VARCHAR(150) NOT NULL,
+  cover_photo_url VARCHAR(500) NULL,
   nights VARCHAR(20) NOT NULL,
   regimen VARCHAR(100) NOT NULL,
   start_date DATE NOT NULL,
@@ -37,4 +38,13 @@ CREATE TABLE IF NOT EXISTS cotizaciones (
   sent_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (consulta_id) REFERENCES consultas(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS notas (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  consulta_id INT UNSIGNED NOT NULL,
+  author VARCHAR(100) NOT NULL,
+  message TEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (consulta_id) REFERENCES consultas(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

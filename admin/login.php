@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
   <form class="card" method="post">
-    <img src="../assets/logo.png" alt="Travel Support">
+    <img src="../assets/logo-dark.svg" alt="Travel Support">
     <?php if ($error): ?><div class="error"><?= htmlspecialchars($error) ?></div><?php endif; ?>
     <label for="user">Usuario</label>
     <input id="user" name="user" autocomplete="username" required autofocus>

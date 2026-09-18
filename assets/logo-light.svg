@@ -1,0 +1,22 @@
+<svg width="210" height="44" viewBox="0 0 210 44" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Travel Support - Viajes y Turismo">
+  <defs>
+    <radialGradient id="sphereLight" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#f7fafb"/>
+      <stop offset="15%" stop-color="#b6c9d2"/>
+      <stop offset="52%" stop-color="#52748a"/>
+      <stop offset="100%" stop-color="#18324c"/>
+    </radialGradient>
+    <clipPath id="circleClipLight">
+      <circle cx="22" cy="22" r="21"/>
+    </clipPath>
+  </defs>
+  <g>
+    <circle cx="22" cy="22" r="21" fill="url(#sphereLight)" stroke="rgba(255,255,255,.45)" stroke-width="1"/>
+    <g clip-path="url(#circleClipLight)">
+      <ellipse cx="22" cy="22" rx="28" ry="8.5" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="1" transform="rotate(-31 22 22)"/>
+      <ellipse cx="22" cy="22" rx="10.5" ry="26" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="1" opacity=".72" transform="rotate(31 22 22)"/>
+    </g>
+  </g>
+  <text x="52" y="24" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="19" letter-spacing="-0.5" fill="#ffffff">travel<tspan fill="#74dcd4" font-style="italic" font-weight="500">support</tspan></text>
+  <text x="52" y="36" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="6.5" letter-spacing="1.6" fill="rgba(255,255,255,.72)">VIAJES Y TURISMO</text>
+</svg>

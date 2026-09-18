@@ -4,14 +4,14 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../templates/quote-template.php';
 
-ts_require_login();
+ts_client_require_login();
 
 $id = (int) ($_GET['id'] ?? 0);
 $stmt = ts_db()->prepare('SELECT * FROM cotizaciones WHERE id = ?');
 $stmt->execute([$id]);
 $row = $stmt->fetch();
 
-if (!$row) {
+if (!$row || $row['client_email'] !== $_SESSION['ts_client_email']) {
     http_response_code(404);
     echo 'Cotización no encontrada.';
     exit;

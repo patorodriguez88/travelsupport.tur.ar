@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/../lib/db.php';
+require_once __DIR__ . '/partials.php';
 
 ts_require_login();
 
@@ -20,85 +21,110 @@ $travelers = json_decode($c['travelers'] ?? '[]', true) ?: [];
 $addons = json_decode($c['addons'] ?? '[]', true) ?: [];
 $activities = json_decode($c['activities'] ?? '[]', true) ?: [];
 
-$cotizaciones = ts_db()->prepare('SELECT * FROM cotizaciones WHERE consulta_id = ? ORDER BY created_at DESC');
-$cotizaciones->execute([$id]);
-$cotizaciones = $cotizaciones->fetchAll();
+$cotizacionesStmt = ts_db()->prepare('SELECT * FROM cotizaciones WHERE consulta_id = ? ORDER BY created_at DESC');
+$cotizacionesStmt->execute([$id]);
+$cotizaciones = $cotizacionesStmt->fetchAll();
+
+$notasStmt = ts_db()->prepare('SELECT * FROM notas WHERE consulta_id = ? ORDER BY created_at DESC');
+$notasStmt->execute([$id]);
+$notas = $notasStmt->fetchAll();
+
+$statusOptions = ['nueva', 'contactada', 'cotizada', 'cerrada', 'descartada'];
+
+ts_admin_layout_start($c['name'], $c['status']);
 ?>
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= htmlspecialchars($c['name']) ?> | Back office Travel Support</title>
 <style>
-  :root { --navy: #10243e; --teal: #19a7a0; --cream: #f7f5ef; --line: #dce6e8; --ink: #17304c; --muted: #64748b; }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--cream); font-family: Inter, system-ui, sans-serif; color: var(--ink); }
-  header { background: var(--navy); color: #fff; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; }
-  header img { height: 32px; }
-  header a { color: #fff; opacity: .85; font-size: .85rem; }
-  main { padding: 28px; max-width: 800px; margin: 0 auto; }
-  .back { display:inline-block; margin-bottom: 16px; color: var(--teal); font-weight:600; font-size:.85rem; }
-  .card { background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(16,36,62,.08); padding: 24px; margin-bottom: 20px; }
-  h1 { font-size: 1.3rem; margin: 0 0 4px; }
-  .sub { color: var(--muted); font-size: .85rem; margin-bottom: 18px; }
-  dl { display: grid; grid-template-columns: 160px 1fr; gap: 8px 12px; margin: 0; font-size: .9rem; }
-  dt { color: var(--muted); }
-  dd { margin: 0; }
-  .btn { display: inline-block; padding: 10px 18px; border-radius: 8px; background: var(--teal); color: #fff; font-size: .9rem; font-weight: 700; margin-top: 6px; }
+  .info-grid { display: grid; grid-template-columns: 160px 1fr; gap: 9px 12px; margin: 0; font-size: .9rem; }
+  .info-grid dt { color: var(--muted); }
+  .info-grid dd { margin: 0; }
   ul.list { margin: 6px 0 0; padding-left: 18px; font-size: .85rem; }
-  table.mini { width:100%; border-collapse: collapse; font-size:.85rem; }
-  table.mini th, table.mini td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); }
+  table.mini th, table.mini td { font-size: .85rem; }
+  .status-form { display: flex; align-items: center; gap: 8px; }
+  .status-form select { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); font: inherit; }
+  .note { border-bottom: 1px solid var(--line); padding: 12px 0; }
+  .note:last-child { border-bottom: none; }
+  .note-meta { font-size: .74rem; color: var(--muted); margin-bottom: 4px; }
+  .note-message { font-size: .89rem; white-space: pre-wrap; }
+  .note-form textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; min-height: 70px; resize: vertical; margin-bottom: 8px; }
+  .two-col { display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
 </style>
-</head>
-<body>
-<header>
-  <img src="../assets/logo.png" alt="Travel Support">
-  <a href="logout.php">Cerrar sesión</a>
-</header>
-<main>
-  <a class="back" href="index.php">&larr; Volver a consultas</a>
-  <div class="card">
+<a class="back-link" href="index.php">&larr; Volver a consultas</a>
+<div class="page-head">
+  <div>
     <h1><?= htmlspecialchars($c['name']) ?></h1>
     <div class="sub">Recibida el <?= htmlspecialchars(date('d/m/Y H:i', strtotime($c['created_at']))) ?></div>
-    <dl>
-      <dt>Email</dt><dd><?= htmlspecialchars($c['email']) ?></dd>
-      <dt>Teléfono</dt><dd><?= htmlspecialchars($c['phone']) ?></dd>
-      <dt>Destino</dt><dd><?= htmlspecialchars($c['destination']) ?></dd>
-      <dt>Fechas</dt><dd><?= htmlspecialchars(date('d/m/Y', strtotime($c['start_date']))) ?> al <?= htmlspecialchars(date('d/m/Y', strtotime($c['return_date']))) ?></dd>
-      <dt>Presupuesto</dt><dd><?= htmlspecialchars($c['budget']) ?></dd>
-      <?php if ($travelers): ?>
-      <dt>Viajeros</dt>
-      <dd><ul class="list"><?php foreach ($travelers as $t): ?><li><?= htmlspecialchars($t['name'] ?? '') ?> (<?= htmlspecialchars($t['age'] ?? '') ?> años)</li><?php endforeach; ?></ul></dd>
-      <?php endif; ?>
-      <?php if ($addons): ?>
-      <dt>Complementos</dt><dd><?= htmlspecialchars(implode(', ', $addons)) ?></dd>
-      <?php endif; ?>
-      <?php if ($activities): ?>
-      <dt>Excursiones</dt><dd><?= htmlspecialchars(implode(', ', array_map(fn($a) => $a['name'] ?? '', $activities))) ?></dd>
-      <?php endif; ?>
-    </dl>
-    <a class="btn" href="quote.php?consulta_id=<?= (int) $c['id'] ?>">Generar cotización</a>
+  </div>
+  <form class="status-form" method="post" action="update-status.php">
+    <input type="hidden" name="id" value="<?= (int) $c['id'] ?>">
+    <select name="status" onchange="this.form.submit()">
+      <?php foreach ($statusOptions as $s): ?>
+      <option value="<?= $s ?>" <?= $s === $c['status'] ? 'selected' : '' ?>><?= ts_status_label($s) ?></option>
+      <?php endforeach; ?>
+    </select>
+  </form>
+</div>
+
+<div class="two-col">
+  <div>
+    <div class="card">
+      <dl class="info-grid">
+        <dt>Email</dt><dd><?= htmlspecialchars($c['email']) ?></dd>
+        <dt>Teléfono</dt><dd><?= htmlspecialchars($c['phone']) ?></dd>
+        <dt>Destino</dt><dd><?= htmlspecialchars($c['destination']) ?></dd>
+        <dt>Fechas</dt><dd><?= htmlspecialchars(date('d/m/Y', strtotime($c['start_date']))) ?> al <?= htmlspecialchars(date('d/m/Y', strtotime($c['return_date']))) ?></dd>
+        <dt>Presupuesto</dt><dd><?= htmlspecialchars($c['budget']) ?></dd>
+        <?php if ($travelers): ?>
+        <dt>Viajeros</dt>
+        <dd><ul class="list"><?php foreach ($travelers as $t): ?><li><?= htmlspecialchars($t['name'] ?? '') ?> (<?= htmlspecialchars($t['age'] ?? '') ?> años)</li><?php endforeach; ?></ul></dd>
+        <?php endif; ?>
+        <?php if ($addons): ?>
+        <dt>Complementos</dt><dd><?= htmlspecialchars(implode(', ', $addons)) ?></dd>
+        <?php endif; ?>
+        <?php if ($activities): ?>
+        <dt>Excursiones</dt><dd><?= htmlspecialchars(implode(', ', array_map(fn($a) => $a['name'] ?? '', $activities))) ?></dd>
+        <?php endif; ?>
+      </dl>
+      <div style="margin-top:16px;"><a class="btn" href="quote.php?consulta_id=<?= (int) $c['id'] ?>">Generar cotización</a></div>
+    </div>
+
+    <?php if ($cotizaciones): ?>
+    <div class="card">
+      <h2 style="font-size:1rem;margin-top:0;">Cotizaciones enviadas</h2>
+      <table class="mini">
+        <thead><tr><th>Fecha</th><th>Destino</th><th>Válida hasta</th><th></th></tr></thead>
+        <tbody>
+          <?php foreach ($cotizaciones as $q): ?>
+          <tr>
+            <td><?= htmlspecialchars(date('d/m/Y H:i', strtotime($q['created_at']))) ?></td>
+            <td><?= htmlspecialchars($q['destination']) ?></td>
+            <td><?= htmlspecialchars(date('d/m/Y', strtotime($q['valid_until']))) ?></td>
+            <td><a href="quote-preview.php?id=<?= (int) $q['id'] ?>" target="_blank">Ver</a></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+    <?php endif; ?>
   </div>
 
-  <?php if ($cotizaciones): ?>
-  <div class="card">
-    <h1 style="font-size:1.05rem;">Cotizaciones enviadas</h1>
-    <table class="mini">
-      <thead><tr><th>Fecha</th><th>Destino</th><th>Válida hasta</th><th></th></tr></thead>
-      <tbody>
-        <?php foreach ($cotizaciones as $q): ?>
-        <tr>
-          <td><?= htmlspecialchars(date('d/m/Y H:i', strtotime($q['created_at']))) ?></td>
-          <td><?= htmlspecialchars($q['destination']) ?></td>
-          <td><?= htmlspecialchars(date('d/m/Y', strtotime($q['valid_until']))) ?></td>
-          <td><a href="quote-preview.php?id=<?= (int) $q['id'] ?>" target="_blank">Ver</a></td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
+  <div class="card" id="seguimiento">
+    <h2 style="font-size:1rem;margin-top:0;">Seguimiento</h2>
+    <form class="note-form" method="post" action="add-note.php">
+      <input type="hidden" name="consulta_id" value="<?= (int) $c['id'] ?>">
+      <textarea name="message" placeholder="Agregá una nota de seguimiento (ej. 'Llamé y quedó en confirmar el viernes')" required></textarea>
+      <button class="btn" type="submit">Agregar nota</button>
+    </form>
+    <div style="margin-top:14px;">
+      <?php if (!$notas): ?>
+        <div class="empty" style="padding:20px;">Todavía no hay notas.</div>
+      <?php else: foreach ($notas as $n): ?>
+        <div class="note">
+          <div class="note-meta"><?= htmlspecialchars($n['author']) ?> · <?= htmlspecialchars(date('d/m/Y H:i', strtotime($n['created_at']))) ?></div>
+          <div class="note-message"><?= htmlspecialchars($n['message']) ?></div>
+        </div>
+      <?php endforeach; endif; ?>
+    </div>
   </div>
-  <?php endif; ?>
-</main>
-</body>
-</html>
+</div>
+<?php ts_admin_layout_end(); ?>
